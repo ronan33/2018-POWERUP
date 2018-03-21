@@ -87,7 +87,7 @@ public class ControlBoard implements ControlBoardInterface
                 result = mDrivestick.getRawButton(1);
                 break;
             case DRIVE_SLOW:
-                result = mDrivestick.getRawButton(14);
+//                result = mDrivestick.getRawButton(14);
                 break;
             case SCISSOR_OFF:
                 current = mButtonBoard.getRawAxis(2);
@@ -102,7 +102,7 @@ public class ControlBoard implements ControlBoardInterface
                 break;
             case GRABBER_DROP_CUBE:
                 current = mButtonBoard.getRawAxis(3);
-                result = ((mPreviousGetDropCube != current) && (current == 1.0)) || mDrivestick.getRawButtonPressed(11);
+                result = ((mPreviousGetDropCube != current) && (current == 1.0));// || mDrivestick.getRawButtonPressed(11);
                 mPreviousGetDropCube = current;
                 break;
             case HARVESTER_OPEN:
@@ -115,7 +115,7 @@ public class ControlBoard implements ControlBoardInterface
                 result = mButtonBoard.getRawButtonPressed(4) || mDrivestick.getRawButtonPressed(3);
                 break;
             case SUPERSTRUCTURE_CARRY_CUBE:
-                result = mButtonBoard.getRawButtonPressed(6) || mDrivestick.getRawButtonPressed(13);
+                result = mButtonBoard.getRawButtonPressed(6); //|| mDrivestick.getRawButtonPressed(13);
                 break;
             case CLIMBER_TOGGLE:
                 result = mButtonBoard.getRawButtonPressed(7);
@@ -151,7 +151,7 @@ public class ControlBoard implements ControlBoardInterface
                 result = mDrivestick.getRawButton(4);
                 break;
             case GRABBER_TOGGLE:
-                //result = mDrivestick.getRawButtonReleased(7);
+                result = mDrivestick.getRawButtonReleased(7);
                 break;
             default:
                 Logger.error("ControlBoard: unimplemented boolean: " + b.toString());

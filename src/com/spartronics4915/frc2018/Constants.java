@@ -37,7 +37,7 @@ public class Constants extends ConstantsBase
     
     public static final int kClimberWinchPrimaryMotorId = 5;
     public static final int kGrabberFlipperMotorId = 7;
-    public static final int kHarvesterMotorId = kUseTestbedConstants ? 18 : 8;
+    public static final int kHarvesterMotorId = 8;
  
     public static final int kNumTalons = 8; // total talon count on robot (not testbed)
     

@@ -23,7 +23,8 @@ public class Harvester extends Subsystem
     private static final boolean kSolenoidClose = false;
     private static final double kCloseTimePeriod = 1;
     private static final double kEjectTimePeriod = 2.3;
-
+    private static final double speed = 1.0;
+    
     public static Harvester getInstance()
     {
         if (sInstance == null)
@@ -73,7 +74,7 @@ public class Harvester extends Subsystem
         {
             mCubeHeldSensor = new SpartIRSensor(Constants.kGrabberCubeDistanceRangeFinderId);
             mMotor = TalonSRX4915Factory.createDefaultMotor(Constants.kHarvesterMotorId); // change value of motor
-            mMotor.configOutputPower(true, 0.5, 0, 1, 0, -1);
+            mMotor.configOutputPower(true, 0.5, 0, 0.75, 0, -0.75);
             mMotor.setInverted(true);
             mTimer = new Timer();
 
@@ -183,7 +184,7 @@ public class Harvester extends Subsystem
     {
         //motors off and bars in
         mMotor.set(0.0);
-        if (mWantedState == WantedState.OPEN || mWantedState ==  WantedState.AUTOHARVEST)
+        if (mWantedState == WantedState.OPEN || mWantedState ==  WantedState.AUTOHARVEST || mWantedState == WantedState.HARVEST || mWantedState == WantedState.EJECT)
         {
             return defaultStateTransfer(); //all defaultStateTransfers return the wanted state
         }
@@ -201,8 +202,8 @@ public class Harvester extends Subsystem
         // if timeout reached, turn off motors
         if (!mTimer.hasPeriodPassed(kCloseTimePeriod))
         {
-            //mMotorLeft.set(-1.0);
-            //mMotorRight.set(-1.0);
+            //mMotorLeft.set(speed);
+            //mMotorRight.set(speed);
         }
         return SystemState.OPENING;
     }
@@ -225,7 +226,7 @@ public class Harvester extends Subsystem
     private SystemState handleHarvesting()
     {
         //motors on forward and bars closing, hug when cube is gone
-        mMotor.set(1.0);
+        mMotor.set(-speed);
         if (mTimer.hasPeriodPassed(kCloseTimePeriod))
         {
             setWantedState(WantedState.HUG);
@@ -240,7 +241,7 @@ public class Harvester extends Subsystem
     private SystemState handleEjecting()
     {
         //motors in reverse and bars closing, close when cube is gone
-        mMotor.set(-1.0);
+        mMotor.set(speed);
         if (mTimer.hasPeriodPassed(kEjectTimePeriod))
         { //Cube is gone!  Transition to Open (turn off motor) to prevent damage
             setWantedState(WantedState.OPEN);
@@ -256,7 +257,7 @@ public class Harvester extends Subsystem
     {
         //motors off and bars closing go to closed when cube is gone
         mMotor.set(0.0);
-        if (mWantedState == WantedState.OPEN || mWantedState == WantedState.EJECT)
+        if (mWantedState == WantedState.OPEN || mWantedState == WantedState.EJECT || mWantedState == WantedState.HARVEST)
         {
             return defaultStateTransfer();
         }
