@@ -28,7 +28,7 @@ public class ArticulatedGrabber extends Subsystem
     private static ArticulatedGrabber sInstance = null; //defining the parts of our subsystem on the robot
     private TalonSRX4915 mPositionMotor = null;
     private LazySolenoid mGrabber = null;
-    private LazySolenoid mGrabberSetup = null;
+//    private LazySolenoid mGrabberSetup = null;
     private AnalogInput mPotentiometer = null;
     private DigitalInput mLimitSwitchRev = null;
     private DigitalInput mLimitSwitchFwd = null;
@@ -46,7 +46,7 @@ public class ArticulatedGrabber extends Subsystem
     {
         public int articulatorPosition; //indicates the position of the "flipper" arm
         public boolean grabberClosed; //false == grabber Open, true == grabber Closed
-        public boolean grabberSetup; //turns on at startup, should always stay on
+//        public boolean grabberSetup; //turns on at startup, should always stay on
     }
 
     public enum WantedState //WantedState should be set when the buttons are pressed
@@ -101,7 +101,7 @@ public class ArticulatedGrabber extends Subsystem
             mPositionMotor.configOutputPower(true, 0, 0, 0.5, 0, -1);//Voltage ramp middle zero
             mPositionMotor.setBrakeMode(true);
             mGrabber = new LazySolenoid(Constants.kGrabberSolenoidId);
-            mGrabberSetup = new LazySolenoid(Constants.kGrabberSetupSolenoidId);
+//            mGrabberSetup = new LazySolenoid(Constants.kGrabberSetupSolenoidId);
             mPotentiometer = new AnalogInput(Constants.kGrabberAnglePotentiometerId);
             mLimitSwitchRev = new DigitalInput(Constants.kFlipperRevLimitSwitchId);
             mLimitSwitchFwd = new DigitalInput(Constants.kFlipperFwdLimitSwitchId);
@@ -111,18 +111,18 @@ public class ArticulatedGrabber extends Subsystem
                 success = false;
                 logWarning("GrabberOpen Invalid");
             }
-            if (!mGrabberSetup.isValid())
-            {
-                success = false;
-                logWarning("GrabberSetup Invalid");
-            }
+//            if (!mGrabberSetup.isValid())
+//            {
+//                success = false;
+//                logWarning("GrabberSetup Invalid");
+//            }
             if (!mPositionMotor.isValid())
             {
                 success = false;
                 logWarning("PositionMotor Invalid");
             }
 
-            mSystemState.grabberSetup = false;
+//            mSystemState.grabberSetup = false;
             
             // Initialize network tables during robotInit(), allows us to tweak values
             //  XXX: requires us to place best-known values into these values.
@@ -150,7 +150,7 @@ public class ArticulatedGrabber extends Subsystem
             {
                 mSystemState.articulatorPosition = mPotentiometer.getAverageValue();
                 mSystemState.grabberClosed = mGrabber.get();
-                mSystemState.grabberSetup = mGrabberSetup.get();
+//                mSystemState.grabberSetup = mGrabberSetup.get();
             }
         }
 
@@ -159,8 +159,8 @@ public class ArticulatedGrabber extends Subsystem
         {
             synchronized (ArticulatedGrabber.this)
             {
-                mGrabberSetup.set(true);
-                mSystemState.grabberSetup = true;
+//                mGrabberSetup.set(true);
+//                mSystemState.grabberSetup = true;
 
                 updatePositions();
 
@@ -442,8 +442,8 @@ public class ArticulatedGrabber extends Subsystem
         setWantedState(WantedState.DISABLED);
         mPositionMotor.set(0);
         mGrabber.set(true);
-        mGrabberSetup.set(false);
-        mSystemState.grabberSetup = false;
+//        mGrabberSetup.set(false);
+//        mSystemState.grabberSetup = false;
         mSystemState.grabberClosed = true; //TODO maybe add something to stop WantedStates from retriggering SystemStates
     }
 
@@ -499,7 +499,7 @@ public class ArticulatedGrabber extends Subsystem
                     logNotice("basic check ------");
                     logNotice("    mPositionMotor:\n" + mPositionMotor.dumpState());
                     logNotice("    mGrabber: " + mGrabber.get());
-                    logNotice("    mGrabberSetup: " + mGrabberSetup.get());
+//                    logNotice("    mGrabberSetup: " + mGrabberSetup.get());
                     logNotice("    mPotentiometer: " + mPotentiometer.getValue());
                     logNotice("    mLimitSwitch1: " + mLimitSwitchRev.get());
                     logNotice("    mLimitSwitch2: " + mLimitSwitchFwd.get());
@@ -509,7 +509,7 @@ public class ArticulatedGrabber extends Subsystem
                 {
                     logNotice("grabber check ------");
                     logNotice("  mGrabberSetup on (2s)");
-                    mGrabberSetup.set(true);
+//                    mGrabberSetup.set(true);
                     Timer.delay(2.0);
                     logNotice("    pot: " + mPotentiometer.getValue());
                     logNotice("  mGrabber on (2s)");
@@ -518,7 +518,7 @@ public class ArticulatedGrabber extends Subsystem
                     logNotice("    pot: " + mPotentiometer.getValue());
                     logNotice("  both solenoids off");
                     mGrabber.set(false);
-                    mGrabberSetup.set(false);
+//                    mGrabberSetup.set(false);
                     Timer.delay(2.0);
                     logNotice("    pot: " + mPotentiometer.getValue());
                 }

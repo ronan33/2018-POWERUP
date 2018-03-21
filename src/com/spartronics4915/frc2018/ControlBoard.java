@@ -129,8 +129,11 @@ public class ControlBoard implements ControlBoardInterface
             case GRABBER_TRANSPORT_TEST:
                 result = mTestsAllowed ? mDrivestick.getRawButtonPressed(7): false;
                 break;
-            case CLIMB_IDLE_TEST:
-                result = mTestsAllowed ? mDrivestick.getRawButtonPressed(12) : false;
+            case GRABBER_MANUAL_OPEN:
+                result = mDrivestick.getRawButtonPressed(14);
+                break;
+            case GRABBER_MANUAL_CLOSED:
+                result = mDrivestick.getRawButtonPressed(12);
                 break;
             case GRABBER_TEMP_TEST:
                 break;
@@ -148,7 +151,7 @@ public class ControlBoard implements ControlBoardInterface
                 result = mDrivestick.getRawButton(4);
                 break;
             case GRABBER_TOGGLE:
-                result = mDrivestick.getRawButtonReleased(7);
+                //result = mDrivestick.getRawButtonReleased(7);
                 break;
             default:
                 Logger.error("ControlBoard: unimplemented boolean: " + b.toString());

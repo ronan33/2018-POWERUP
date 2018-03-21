@@ -107,7 +107,7 @@ public class BackupControlBoard implements ControlBoardInterface
             case GRABBER_TRANSPORT_TEST:
                 result = mDrivestick.getRawButtonPressed(9);
                 break;
-            case CLIMB_IDLE_TEST:
+            case GRABBER_MANUAL_CLOSED:
                 result = mTestsAllowed ? mDrivestick.getRawButtonPressed(8) : false;
                 break;
             case GRABBER_TEMP_TEST:
