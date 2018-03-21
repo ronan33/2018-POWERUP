@@ -227,13 +227,11 @@ public class ArticulatedGrabber extends Subsystem
                     mGrabber.set(true);
                     return true;
                 }
-                
-            case FAST_OPENED:
-                return mGrabber.get();
 
             case MANUAL_OPEN:
             case PREPARE_INTAKE:
             case PREPARE_EXCHANGE:
+            case FAST_OPENED:
                 if (!mNextState.grabberClosed)
                 {
                     mGrabber.set(false);
