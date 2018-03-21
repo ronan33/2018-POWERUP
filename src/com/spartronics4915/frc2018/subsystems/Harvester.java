@@ -241,7 +241,7 @@ public class Harvester extends Subsystem
     {
         //motors in reverse and bars closing, close when cube is gone
         mMotor.set(-1.0);
-        if (!isCubeHeld() && mTimer.hasPeriodPassed(kEjectTimePeriod))
+        if (mTimer.hasPeriodPassed(kEjectTimePeriod))
         { //Cube is gone!  Transition to Open (turn off motor) to prevent damage
             setWantedState(WantedState.OPEN);
             return defaultStateTransfer();
