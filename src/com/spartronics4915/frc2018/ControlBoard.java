@@ -115,7 +115,7 @@ public class ControlBoard implements ControlBoardInterface
                 result = mButtonBoard.getRawButtonPressed(4) || mDrivestick.getRawButtonPressed(3);
                 break;
             case SUPERSTRUCTURE_CARRY_CUBE:
-                result = mButtonBoard.getRawButtonPressed(6); //|| mDrivestick.getRawButtonPressed(13);
+                //result = mButtonBoard.getRawButtonPressed(6); //|| mDrivestick.getRawButtonPressed(13);
                 break;
             case CLIMBER_TOGGLE:
                 result = mButtonBoard.getRawButtonPressed(7);
@@ -151,7 +151,7 @@ public class ControlBoard implements ControlBoardInterface
                 result = mDrivestick.getRawButton(4);
                 break;
             case GRABBER_TOGGLE:
-                result = mDrivestick.getRawButtonReleased(7);
+                result = mButtonBoard.getRawButtonPressed(6);
                 break;
             default:
                 Logger.error("ControlBoard: unimplemented boolean: " + b.toString());

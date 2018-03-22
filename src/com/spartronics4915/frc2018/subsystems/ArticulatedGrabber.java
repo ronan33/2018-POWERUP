@@ -151,6 +151,7 @@ public class ArticulatedGrabber extends Subsystem
                 mSystemState.articulatorPosition = mPotentiometer.getAverageValue();
                 mSystemState.grabberClosed = mGrabber.get();
                 mSystemState.grabberSetup = mGrabberSetup.get();
+                mNextState.grabberClosed = true; //Start out the match witht the grabber CLOSED (because true is closed)
             }
         }
 
@@ -354,6 +355,11 @@ public class ArticulatedGrabber extends Subsystem
         {
             return potValue;
         }
+    }
+    
+    public boolean isGrabberOpen()
+    {
+        return mGrabber.get();
     }
     
     public WantedState getWantedState()
