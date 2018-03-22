@@ -21,7 +21,7 @@ public class Harvester extends Subsystem
     private static Harvester sInstance = null;
     private static final boolean kSolenoidOpen = true;
     private static final boolean kSolenoidClose = false;
-    private static final double kCloseTimePeriod = 1;
+    private static final double kCloseTimePeriod = 1.0;
     private static final double kEjectTimePeriod = 2.3;
     private static final double speed = 1.0;
     
@@ -58,7 +58,8 @@ public class Harvester extends Subsystem
     private SystemState mSystemState = SystemState.DISABLING;
     private WantedState mWantedState = WantedState.DISABLE;
     private SpartIRSensor mCubeHeldSensor = null;
-    private TalonSRX4915 mMotor = null;
+    private TalonSRX4915 mMotorRight = null;
+    private TalonSRX4915 mMotorLeft = null;
     private Timer mTimer;
 
     // Actuators and sensors should be initialized as private members with a value of null here
@@ -73,12 +74,15 @@ public class Harvester extends Subsystem
         try
         {
             mCubeHeldSensor = new SpartIRSensor(Constants.kGrabberCubeDistanceRangeFinderId);
-            mMotor = TalonSRX4915Factory.createDefaultMotor(Constants.kHarvesterMotorId); // change value of motor
-            mMotor.configOutputPower(true, 0.5, 0, 0.75, 0, -0.75);
-            mMotor.setInverted(true);
+            mMotorRight = TalonSRX4915Factory.createDefaultMotor(Constants.kHarvesterRightMotorId); // change value of motor
+            mMotorLeft = TalonSRX4915Factory.createDefaultSlave(Constants.kHarvesterLeftMotorId, 
+                    Constants.kHarvesterRightMotorId, false); // change value of motor
+            mMotorRight.configOutputPower(true, 0.5, 0, 0.75, 0, -0.75);
+            mMotorLeft.configOutputPower(true, 0.5, 0, 0.75, 0, -0.75);
+            mMotorRight.setInverted(true);
             mTimer = new Timer();
 
-            if (!mMotor.isValid())
+            if (!mMotorRight.isValid())
             {
                 logError("Right Motor is invalid");
                 success = false;
@@ -183,7 +187,7 @@ public class Harvester extends Subsystem
     private SystemState handleClosing()
     {
         //motors off and bars in
-        mMotor.set(0.0);
+        mMotorRight.set(0.0);
         if (mWantedState == WantedState.OPEN || mWantedState ==  WantedState.AUTOHARVEST || mWantedState == WantedState.HARVEST || mWantedState == WantedState.EJECT)
         {
             return defaultStateTransfer(); //all defaultStateTransfers return the wanted state
@@ -194,7 +198,7 @@ public class Harvester extends Subsystem
     private SystemState handleOpening()
     {
         // due to mechanical stuck issue, run motors reverse, open bars and turn off motors after timeout
-        mMotor.set(0.0);
+        mMotorRight.set(0.0);
         if (mWantedState == WantedState.HARVEST || mWantedState == WantedState.EJECT || mWantedState == WantedState.AUTOHARVEST)
         {
             return defaultStateTransfer();
@@ -210,7 +214,7 @@ public class Harvester extends Subsystem
     
     private SystemState handleAutoHarvesting()
     {
-        mMotor.set(0.0);
+        mMotorRight.set(0.0);
         //Checks if cube is held and transitions to Harvest when there is
         if (isCubeHeld())
         {
@@ -226,7 +230,7 @@ public class Harvester extends Subsystem
     private SystemState handleHarvesting()
     {
         //motors on forward and bars closing, hug when cube is gone
-        mMotor.set(-speed);
+        mMotorRight.set(-speed);
         if (mTimer.hasPeriodPassed(kCloseTimePeriod))
         {
             setWantedState(WantedState.HUG);
@@ -241,7 +245,7 @@ public class Harvester extends Subsystem
     private SystemState handleEjecting()
     {
         //motors in reverse and bars closing, close when cube is gone
-        mMotor.set(speed);
+        mMotorRight.set(speed);
         if (mTimer.hasPeriodPassed(kEjectTimePeriod))
         { //Cube is gone!  Transition to Open (turn off motor) to prevent damage
             setWantedState(WantedState.OPEN);
@@ -256,7 +260,7 @@ public class Harvester extends Subsystem
     private SystemState handleHugging()
     {
         //motors off and bars closing go to closed when cube is gone
-        mMotor.set(0.0);
+        mMotorRight.set(0.0);
         if (mWantedState == WantedState.OPEN || mWantedState == WantedState.EJECT || mWantedState == WantedState.HARVEST)
         {
             return defaultStateTransfer();
@@ -325,7 +329,7 @@ public class Harvester extends Subsystem
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
         dashboardPutBoolean("IRSensor CubeHeld", isCubeHeld());
-        dashboardPutNumber("MotorRight", mMotor.get());
+        dashboardPutNumber("MotorRight", mMotorRight.get());
         dashboardPutNumber("Cube Distance: ", mCubeHeldSensor.getDistance());
     }
 
@@ -334,7 +338,7 @@ public class Harvester extends Subsystem
     {
         mSystemState = SystemState.DISABLING;
         mWantedState = WantedState.DISABLE;
-        mMotor.set(0.0);
+        mMotorRight.set(0.0);
     }
 
     @Override
@@ -365,7 +369,7 @@ public class Harvester extends Subsystem
             if (variant.equals("basic") || allTests)
             {
                 logNotice("basic check ------");
-                logNotice("  mMotorRight:\n" + mMotor.dumpState());
+                logNotice("  mMotorRight:\n" + mMotorRight.dumpState());
                 logNotice("  isCubeHeld: " + isCubeHeld());
             }
             if (variant.equals("solenoid") || allTests)
@@ -386,16 +390,16 @@ public class Harvester extends Subsystem
                 Timer.delay(4.0);
 
                 logNotice("right motor fwd .5 (4s)");
-                mMotor.set(.5);
+                mMotorRight.set(.5);
                 Timer.delay(4.0);
-                logNotice("  current: " + mMotor.getOutputCurrent());
-                mMotor.set(0);
+                logNotice("  current: " + mMotorRight.getOutputCurrent());
+                mMotorRight.set(0);
 
                 logNotice("both motors rev .5 (4s)"); // out
-                mMotor.set(-.5);
+                mMotorRight.set(-.5);
                 Timer.delay(4.0);
-                logNotice("  right current: " + mMotor.getOutputCurrent());
-                mMotor.set(0);
+                logNotice("  right current: " + mMotorRight.getOutputCurrent());
+                mMotorRight.set(0);
 
                 Timer.delay(.5); // let motors spin down
             }
