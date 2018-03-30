@@ -42,8 +42,8 @@ public class ScissorLift extends Subsystem
     // from dashboard during zeroSensors.  That said, we lose those
     // values during reboot, so we must update these compile-time constants
     // with our best-known values.
-    private static final int kDefaultRetractedOffset = 0;  //2544
-    private static final int kDefaultSwitchOffset = 1380;
+    private static final int kDefaultRetractedOffset = 0;
+    private static final int kDefaultSwitchOffset = 1550;
     private static final int kDefaultScaleOffset = 2051;
     private static final int kDefaultClimbOffset = 2294;
     private static final int kPotentiometerAllowedError = 50;

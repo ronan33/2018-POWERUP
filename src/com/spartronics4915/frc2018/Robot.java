@@ -211,7 +211,6 @@ public class Robot extends IterativeRobot
     {
         try
         {
-
             mLED.setVisionLampOff();
 
             Logger.setVerbosity(SmartDashboard.getString(kRobotVerbosity, "NOTICE"));
@@ -268,7 +267,7 @@ public class Robot extends IterativeRobot
 
             mEnabledLooper.start(); // starts subsystem loopers.
             mDrive.setOpenLoop(DriveSignal.NEUTRAL);
-
+            
             mLED.setVisionLampOff(); // Vision not used in teleop yet TODO
         }
         catch (Throwable t)
@@ -300,6 +299,7 @@ public class Robot extends IterativeRobot
             if (mControlBoard.readButton(Buttons.SCISSOR_OFF))
             {
                 mLifter.setWantedState(ScissorLift.WantedState.OFF);
+                mGrabber.setWantedState(ArticulatedGrabber.WantedState.PREPARE_DROP);
                 mLED.setBlingState(BlingState.SCISSOR_OFF);
             }
 

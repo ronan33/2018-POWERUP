@@ -9,15 +9,15 @@ import com.spartronics4915.lib.util.math.RigidTransform2d;
 import com.spartronics4915.lib.util.math.Rotation2d;
 import com.spartronics4915.lib.util.math.Translation2d;
 
-public class DriveSecondCubeToCScalePath implements PathContainer {
+public class DriveSecondCubeToScaleFromCSwitchPath implements PathContainer {
 
     ArrayList<Waypoint> sWaypoints = new ArrayList<Waypoint>();
 
-    public DriveSecondCubeToCScalePath()
+    public DriveSecondCubeToScaleFromCSwitchPath()
     {
-        sWaypoints.add(new Waypoint(213,90,0,60));
-        sWaypoints.add(new Waypoint(253,73,20,60));
-        sWaypoints.add(new Waypoint(283,73,0,60));
+        sWaypoints.add(new Waypoint(213,92,0,60));
+        sWaypoints.add(new Waypoint(263,78,10,60));
+        sWaypoints.add(new Waypoint(283,78,0,60));
 
     }
 
@@ -36,7 +36,7 @@ public class DriveSecondCubeToCScalePath implements PathContainer {
     @Override
     public RigidTransform2d getStartPose()
     {
-        return new RigidTransform2d(new Translation2d(213, 90), Rotation2d.fromDegrees(180.0));
+        return new RigidTransform2d(new Translation2d(213, 92), Rotation2d.fromDegrees(90.0));
     }
 
     @Override
@@ -44,7 +44,7 @@ public class DriveSecondCubeToCScalePath implements PathContainer {
     {
         return false;
     }
-    // WAYPOINT_DATA: [{"position":{"x":213,"y":90},"speed":60,"radius":0,"comment":""},{"position":{"x":253,"y":73},"speed":60,"radius":20,"comment":""},{"position":{"x":283,"y":73},"speed":60,"radius":0,"comment":""}]
+    // WAYPOINT_DATA: [{"position":{"x":213,"y":92},"speed":60,"radius":0,"comment":""},{"position":{"x":263,"y":78},"speed":60,"radius":10,"comment":""},{"position":{"x":283,"y":78},"speed":60,"radius":0,"comment":""}]
     // IS_REVERSED: false
-    // FILE_NAME: DriveSecondCubeToCScalePath
+    // FILE_NAME: DriveSecondCubeToScaleFromCSwitchPath
 }
