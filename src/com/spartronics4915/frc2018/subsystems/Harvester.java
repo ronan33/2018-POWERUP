@@ -23,7 +23,8 @@ public class Harvester extends Subsystem
     private static final boolean kSolenoidClose = false;
     private static final double kCloseTimePeriod = 1.0;
     private static final double kEjectTimePeriod = 2.3;
-    private static final double speed = 1.0;
+    private static final double kHarvestPercentOutput = 1.0;
+    private static final double kEjectPercentOutput = -1.0;
     
     public static Harvester getInstance()
     {
@@ -36,22 +37,17 @@ public class Harvester extends Subsystem
 
     public enum SystemState
     {
-        CLOSING,
-        OPENING,
+        IDLING,
         HARVESTING,
         EJECTING,
-        HUGGING,
-        AUTOHARVESTING,
         DISABLING,
     }
 
     public enum WantedState
     {
-        OPEN,
+        IDLE,
         HARVEST,
         EJECT,
-        HUG,
-        AUTOHARVEST,
         DISABLE,
     }
 
@@ -76,10 +72,10 @@ public class Harvester extends Subsystem
             mCubeHeldSensor = new SpartIRSensor(Constants.kGrabberCubeDistanceRangeFinderId);
             mMotorRight = TalonSRX4915Factory.createDefaultMotor(Constants.kHarvesterRightMotorId); // change value of motor
             mMotorLeft = TalonSRX4915Factory.createDefaultSlave(Constants.kHarvesterLeftMotorId, 
-                    Constants.kHarvesterRightMotorId, false); // change value of motor
-            mMotorRight.configOutputPower(true, 0.5, 0, 0.75, 0, -0.75);
-            mMotorLeft.configOutputPower(true, 0.5, 0, 0.75, 0, -0.75);
-            mMotorRight.setInverted(true);
+                    Constants.kHarvesterRightMotorId, true); // true means motor inverted
+            mMotorRight.configOutputPower(true, 0.5, 0, 1.0, 0, -1.0);
+            mMotorLeft.configOutputPower(true, 0.5, 0, 1.0, 0, -1.0);
+            mMotorRight.setInverted(false);
             mTimer = new Timer();
 
             if (!mMotorRight.isValid())
@@ -106,9 +102,8 @@ public class Harvester extends Subsystem
         {
             synchronized (Harvester.this)
             {
-
                 if (mSystemState == SystemState.DISABLING)
-                    mSystemState = SystemState.CLOSING;
+                    mSystemState = SystemState.IDLING;
             }
         }
 
@@ -120,29 +115,34 @@ public class Harvester extends Subsystem
                 SystemState newState; // calls the wanted handle case for the given systemState
                 switch (mSystemState)
                 {
-                    case CLOSING:
-                        newState = handleClosing();
-                        break;
-                    case OPENING:
-                        newState = handleOpening();
+                    case IDLING:
+                        mMotorRight.set(0.0);
+                        newState = defaultStateTransfer();
                         break;
                     case HARVESTING:
-                        newState = handleHarvesting();
+                        mMotorRight.set(kHarvestPercentOutput);
+                        if (mTimer.hasPeriodPassed(kCloseTimePeriod))
+                        {
+                            setWantedState(WantedState.IDLE);
+                        }
+                        newState = defaultStateTransfer();
                         break;
                     case EJECTING:
-                        newState = handleEjecting();
-                        break;
-                    case HUGGING:
-                        newState = handleHugging();
-                        break;
-                    case AUTOHARVESTING:
-                        newState = handleAutoHarvesting();
+                        mMotorRight.set(kEjectPercentOutput);
+                        if (mTimer.hasPeriodPassed(kEjectTimePeriod))
+                        { //Cube is gone!  Transition to Open (turn off motor) to prevent damage
+                            setWantedState(WantedState.IDLE);
+                        }
+                        newState = defaultStateTransfer();
                         break;
                     case DISABLING:
-                        newState = handleClosing();
+                        mMotorRight.set(0.0);
+                        newState = SystemState.IDLING;
                         break;
                     default:
-                        newState = handleClosing();
+                        mMotorRight.set(0.0);
+                        newState = SystemState.IDLING;
+                        break;
                 }
                 if (newState != mSystemState)
                 {
@@ -169,103 +169,15 @@ public class Harvester extends Subsystem
 
         switch (mWantedState)
         {
-            case OPEN:
-                return SystemState.OPENING;
+            case IDLE:
+                return SystemState.IDLING;
             case HARVEST:
                 return SystemState.HARVESTING;
             case EJECT:
                 return SystemState.EJECTING;
-            case HUG:
-                return SystemState.HUGGING;
-            case AUTOHARVEST:
-                return SystemState.AUTOHARVESTING;
             default:
                 return mSystemState;
         }
-    }
-
-    private SystemState handleClosing()
-    {
-        //motors off and bars in
-        mMotorRight.set(0.0);
-        if (mWantedState == WantedState.OPEN || mWantedState ==  WantedState.AUTOHARVEST || mWantedState == WantedState.HARVEST || mWantedState == WantedState.EJECT)
-        {
-            return defaultStateTransfer(); //all defaultStateTransfers return the wanted state
-        }
-        return SystemState.CLOSING;
-    }
-
-    private SystemState handleOpening()
-    {
-        // due to mechanical stuck issue, run motors reverse, open bars and turn off motors after timeout
-        mMotorRight.set(0.0);
-        if (mWantedState == WantedState.HARVEST || mWantedState == WantedState.EJECT || mWantedState == WantedState.AUTOHARVEST)
-        {
-            return defaultStateTransfer();
-        }
-        // if timeout reached, turn off motors
-        if (!mTimer.hasPeriodPassed(kCloseTimePeriod))
-        {
-            //mMotorLeft.set(speed);
-            //mMotorRight.set(speed);
-        }
-        return SystemState.OPENING;
-    }
-    
-    private SystemState handleAutoHarvesting()
-    {
-        mMotorRight.set(0.0);
-        //Checks if cube is held and transitions to Harvest when there is
-        if (isCubeHeld())
-        {
-            setWantedState(WantedState.HARVEST);
-            return SystemState.HARVESTING;
-        }
-        else
-        {
-            return defaultStateTransfer();
-        }
-    }
-
-    private SystemState handleHarvesting()
-    {
-        //motors on forward and bars closing, hug when cube is gone
-        mMotorRight.set(-speed);
-        if (mTimer.hasPeriodPassed(kCloseTimePeriod))
-        {
-            setWantedState(WantedState.HUG);
-            return defaultStateTransfer(); // checks if cube is in the robot and will transitions to hugging when the cube is fully in
-        }
-        else
-        {
-            return defaultStateTransfer();
-        }
-    }
-
-    private SystemState handleEjecting()
-    {
-        //motors in reverse and bars closing, close when cube is gone
-        mMotorRight.set(speed);
-        if (mTimer.hasPeriodPassed(kEjectTimePeriod))
-        { //Cube is gone!  Transition to Open (turn off motor) to prevent damage
-            setWantedState(WantedState.OPEN);
-            return defaultStateTransfer();
-        }
-        else
-        {
-            return defaultStateTransfer();
-        }
-    }
-
-    private SystemState handleHugging()
-    {
-        //motors off and bars closing go to closed when cube is gone
-        mMotorRight.set(0.0);
-        if (mWantedState == WantedState.OPEN || mWantedState == WantedState.EJECT || mWantedState == WantedState.HARVEST)
-        {
-            return defaultStateTransfer();
-        }
-        return SystemState.HUGGING;
     }
     
     public WantedState getWantedState()
@@ -275,7 +187,7 @@ public class Harvester extends Subsystem
 
     public void setWantedState(WantedState wantedState)
     {
-        if (wantedState == WantedState.HARVEST || wantedState == WantedState.OPEN)
+        if (wantedState == WantedState.HARVEST || wantedState == WantedState.IDLE)
         {
             logNotice("TIMER SET---------------------------------------------");
             mTimer.reset();
@@ -290,8 +202,8 @@ public class Harvester extends Subsystem
         boolean t = false;
         switch (mSystemState)
         {
-            case OPENING:
-                if (mWantedState == WantedState.OPEN)
+            case IDLING:
+                if (mWantedState == WantedState.IDLE)
                     t = true;
                 break;
             case HARVESTING:
@@ -300,10 +212,6 @@ public class Harvester extends Subsystem
                 break;
             case EJECTING:
                 if (mWantedState == WantedState.EJECT)
-                    t = true;
-                break;
-            case HUGGING:
-                if (mWantedState == WantedState.HUG)
                     t = true;
                 break;
             case DISABLING:

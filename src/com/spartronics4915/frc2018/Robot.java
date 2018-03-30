@@ -212,7 +212,7 @@ public class Robot extends IterativeRobot
         try
         {
 
-            mLED.setVisionLampOn();
+            mLED.setVisionLampOff();
 
             Logger.setVerbosity(SmartDashboard.getString(kRobotVerbosity, "NOTICE"));
             Logger.logAutoInit();
@@ -269,7 +269,7 @@ public class Robot extends IterativeRobot
             mEnabledLooper.start(); // starts subsystem loopers.
             mDrive.setOpenLoop(DriveSignal.NEUTRAL);
 
-            mLED.setVisionLampOn(); // Vision not used in teleop yet TODO
+            mLED.setVisionLampOff(); // Vision not used in teleop yet TODO
         }
         catch (Throwable t)
         {
@@ -330,7 +330,7 @@ public class Robot extends IterativeRobot
 
             if (mControlBoard.readButton(Buttons.HARVESTER_OPEN))
             {
-                mHarvester.setWantedState(Harvester.WantedState.OPEN);
+                mHarvester.setWantedState(Harvester.WantedState.IDLE);
                 mLED.setBlingState(BlingState.OPEN_HARVESTER);
             }
 

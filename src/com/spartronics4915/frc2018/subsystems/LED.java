@@ -399,12 +399,13 @@ public class LED extends Subsystem
 
     public synchronized void setVisionLampOn()
     {
-        if (!mIsLampOn)
-        {
-            mIsLampOn = true;
-            dashboardPutBoolean("VisionLamp", mIsLampOn);
-            mVisionLamp.set(Relay.Value.kForward);
-        }
+        setVisionLampOff();
+//        if (!mIsLampOn)
+//        {
+//            mIsLampOn = true;
+//            dashboardPutBoolean("VisionLamp", mIsLampOn);
+//            mVisionLamp.set(Relay.Value.kForward);
+//        }
     }
 
     public synchronized void setVisionLampOff()
