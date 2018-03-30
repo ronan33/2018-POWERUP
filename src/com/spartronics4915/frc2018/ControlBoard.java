@@ -132,7 +132,7 @@ public class ControlBoard implements ControlBoardInterface
             case CAMERA_CHANGE_VIEW:
                 result = mButtonBoard.getRawButtonPressed(10) || mDrivestick.getRawButtonPressed(2);
                 break;
-            case GRABBER_TRANSPORT:
+            case GRABBER_TRANSPORT_TEST:
                 current = mButtonBoard.getRawAxis(1);
                 result = ((mPreviousTransport != current) && (current == -1.0)) || mDrivestick.getRawButtonPressed(7);
                 mPreviousTransport = current;
